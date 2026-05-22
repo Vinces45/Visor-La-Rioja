@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Visor Arqueológico · La Rioja Medieval</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- HEADER -->
+<header id="topbar">
+  <div class="topbar-inner">
+    <div class="logo-area">
+      <div class="logo-icon">⚔</div>
+      <div class="logo-text">
+        <span class="logo-title">Atlas Arqueológico</span>
+        <span class="logo-sub">La Rioja Medieval · Beca de Iniciación</span>
+      </div>
+    </div>
+    <div class="topbar-stats" id="topbar-stats">
+      <div class="stat-chip"><span id="stat-total">—</span> artículos</div>
+      <div class="stat-chip"><span id="stat-muni">—</span> municipios</div>
+      <div class="stat-chip"><span id="stat-filtered">—</span> filtrados</div>
+    </div>
+    <button class="panel-toggle" id="panel-toggle" title="Panel lateral">☰</button>
+  </div>
+</header>
+
+<!-- SIDE PANEL -->
+<aside id="side-panel" class="panel-open">
+  <div class="panel-section" id="search-section">
+    <label class="section-label">🔍 Buscar municipio</label>
+    <div class="search-wrap">
+      <input type="text" id="search-input" placeholder="Ej: Nájera, Haro, Viguera…" autocomplete="off">
+      <div id="search-dropdown" class="search-dropdown hidden"></div>
+    </div>
+  </div>
+
+  <div class="panel-section">
+    <label class="section-label">Época / Período</label>
+    <div id="filter-epoca" class="filter-pills"></div>
+  </div>
+
+  <div class="panel-section">
+    <label class="section-label">Año publicación</label>
+    <div class="range-row">
+      <input type="range" id="year-min" min="2010" max="2026" value="2010" step="1">
+      <input type="range" id="year-max" min="2010" max="2026" value="2026" step="1">
+    </div>
+    <div class="range-labels">
+      <span id="year-min-label">2010</span>
+      <span>—</span>
+      <span id="year-max-label">2026</span>
+    </div>
+  </div>
+
+  <div class="panel-section">
+    <label class="section-label">Tipo de yacimiento</label>
+    <div id="filter-tipo" class="filter-pills"></div>
+  </div>
+
+  <div class="panel-section layers-section">
+    <label class="section-label">Capas del mapa</label>
+    <label class="layer-toggle">
+      <input type="checkbox" id="layer-municipios" checked>
+      <span class="toggle-track"><span class="toggle-thumb"></span></span>
+      <span>Municipios La Rioja</span>
+    </label>
+    <label class="layer-toggle">
+      <input type="checkbox" id="layer-larioja" checked>
+      <span class="toggle-track"><span class="toggle-thumb"></span></span>
+      <span>La Rioja</span>
+    </label>
+    <label class="layer-toggle">
+      <input type="checkbox" id="layer-labels">
+      <span class="toggle-track"><span class="toggle-thumb"></span></span>
+      <span>Etiquetas de municipios</span>
+    </label>
+  </div>
+
+  <div class="panel-section">
+    <button class="btn-reset" id="btn-reset">↺ Restablecer filtros</button>
+  </div>
+
+  <!-- LEGEND -->
+  <div class="panel-section">
+    <label class="section-label">Cantidad de Artículos</label>
+    <div class="legend-scale" id="legend-scale">
+      <div class="legend-gradient"></div>
+      <div class="legend-labels">
+        <span>0</span><span>1</span><span>2–3</span><span>4–6</span><span>7+</span>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- MAP -->
+<div id="map-container">
+  <div id="map"></div>
+</div>
+
+<!-- ARTICLE PANEL (right) -->
+<div id="article-panel" class="article-panel-closed">
+  <div class="article-panel-header">
+    <div id="article-panel-title">Municipio seleccionado</div>
+    <button id="article-panel-close">✕</button>
+  </div>
+  <div id="article-panel-body"></div>
+</div>
+
+<!-- TOOLTIP -->
+<div id="map-tooltip" class="map-tooltip hidden"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
