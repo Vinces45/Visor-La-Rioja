@@ -89,9 +89,9 @@ function initMap() {
     attributionControl: false
   });
 
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png', {
-    subdomains: 'abcd',
-    maxZoom: 18
+  // Mapa base oscuro gratuito de Esri (No requiere API Key)
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+    maxZoom: 16
   }).addTo(MAP);
 
   L.control.scale({ metric: true, imperial: false, position: 'bottomright' }).addTo(MAP);
