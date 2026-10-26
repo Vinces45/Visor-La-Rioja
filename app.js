@@ -1,16 +1,12 @@
-/* ============================================
-   ATLAS ARQUEOLÓGICO · LA RIOJA MEDIEVAL
-   app.js — Main application logic (VERSIÓN PULIDA)
-   ============================================ */
 
 'use strict';
 
-// ─── GLOBALS ─────────────────────────────────────────────────────────────────
+//VARIABLES GLOBALES
 let MAP, MUNI_LAYER, LARIOJA_LAYER, LABELS_LAYER;
 let ALL_ARTICLES = [];
 let ALL_MUNICIPALITIES = []; 
 let MUNI_GEOJSON = null;
-let CCAA_GEOJSON = null; // Guardará el contorno oficial
+let CCAA_GEOJSON = null; 
 let LABELS_DATA = []; 
 let CODINE_ARTICLE_MAP = {};   
 let ACTIVE_FILTERS = { epocas: new Set(), tipos: new Set(), yearMin: 2010, yearMax: 2026 };
@@ -30,7 +26,7 @@ function getChoroColor(count) {
   return CHORO_COLORS[5];
 }
 
-// ─── ALGORITMO MATEMÁTICO PARA CENTROIDES ────────────────────────────────────
+
 function getPolygonCenter(feature) {
   let lats = [], lngs = [];
   function extract(arr) {
@@ -50,14 +46,13 @@ function getPolygonCenter(feature) {
   return [(minLat + maxLat) / 2, (minLng + maxLng) / 2]; 
 }
 
-// ─── BOOT ─────────────────────────────────────────────────────────────────────
+
 async function init() {
   initMap();
   try {
     const [muniGeo, articles, ccaaGeo] = await Promise.all([
       fetch('municipios.geojson').then(r => r.json()),
       fetch('articles_clean.json').then(r => r.json()),
-      // Cargamos el borde oficial de La Rioja exportado por Iker
       fetch('ccaa.geojson').then(r => r.ok ? r.json() : null).catch(() => null) 
     ]);
 
@@ -79,7 +74,6 @@ async function init() {
   }
 }
 
-// ─── MAP SETUP ────────────────────────────────────────────────────────────────
 function initMap() {
   MAP = L.map('map', {
     center: [42.35, -2.45],
@@ -89,7 +83,7 @@ function initMap() {
     attributionControl: false
   });
 
-  // Mapa base oscuro gratuito de Esri (No requiere API Key)
+
   L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
     maxZoom: 16
   }).addTo(MAP);
@@ -105,13 +99,13 @@ function initMap() {
   });
 }
 
-// ─── DATA PROCESSING ──────────────────────────────────────────────────────────
+
 function buildCodeMap() {
   CODINE_ARTICLE_MAP = {};
   ALL_ARTICLES.forEach(a => {
     let codes = a.codines || [];
     
-    // Si no tiene municipio asociado, lo metemos en la bolsa del CODINE 26 (Toda La Rioja)
+    
     if (codes.length === 0) {
       codes = [26];
     }
@@ -129,26 +123,26 @@ function getFilteredCount(codine) {
 }
 
 function matchesFilter(a) {
-  // Filtro de Épocas (busca si la palabra clave está incluida en el texto del artículo)
+  
   if (ACTIVE_FILTERS.epocas.size > 0) {
-    if (!a.epoca) return false; // Si el artículo no tiene época, lo descartamos
+    if (!a.epoca) return false; 
     
     let coincideEpoca = false;
     for (let epocaSeleccionada of ACTIVE_FILTERS.epocas) {
       if (a.epoca.includes(epocaSeleccionada)) {
         coincideEpoca = true;
-        break; // Con que coincida con una de las marcadas, es suficiente
+        break; 
       }
     }
     if (!coincideEpoca) return false;
   }
 
-  // Filtro de Tipos de Yacimiento (esto se queda como coincidencia exacta)
+
   if (ACTIVE_FILTERS.tipos.size > 0 && !ACTIVE_FILTERS.tipos.has(a.tipo_yacimiento)) {
     return false;
   }
 
-  // Filtro de Fechas
+ 
   if (a.fecha && (a.fecha < ACTIVE_FILTERS.yearMin || a.fecha > ACTIVE_FILTERS.yearMax)) {
     return false;
   }
@@ -161,7 +155,6 @@ function matchesFilter(a) {
 
 
 
-// ─── MAP RENDER ───────────────────────────────────────────────────────────────
 function getFeatureStyle(feature) {
   const codine = feature.properties.CODINE || feature.properties.codine;
   const count = getFilteredCount(codine);
@@ -192,7 +185,7 @@ function renderMap() {
     }
   });
 
-  // Solo lo añadimos si la casilla está marcada al arrancar
+
   if (document.getElementById('layer-municipios')?.checked) {
       MUNI_LAYER.addTo(MAP);
   }
@@ -234,35 +227,6 @@ function renderLabels() {
   }
 }
 
-/*function renderLaRiojaBoundary() {
-  if (LARIOJA_LAYER) MAP.removeLayer(LARIOJA_LAYER);
-  
-  const styleOpt = { 
-      className: 'larioja-boundary', 
-      fillColor: '#c9a84c', 
-      fillOpacity: 0.04, 
-      color: '#c9a84c', 
-      weight: 2, 
-      opacity: 0.5, 
-      dashArray: '6,4',
-      interactive: false // Para que no bloquee los clics en los pueblos
-  };
-
-  if (CCAA_GEOJSON) {
-      // Si Iker ha exportado ccaa.geojson, usamos las fronteras exactas
-      LARIOJA_LAYER = L.geoJSON(CCAA_GEOJSON, { style: styleOpt }).addTo(MAP);
-  } else {
-      // Si no existe, usamos un bounding box calculado a partir de los municipios
-      // Así al menos es perfecto a nivel de extremos
-      const bounds = L.geoJSON(MUNI_GEOJSON).getBounds();
-      LARIOJA_LAYER = L.rectangle(bounds, styleOpt).addTo(MAP);
-  }
-  
-  // Por defecto, lo ocultamos si la casilla está desmarcada
-  if (!document.getElementById('layer-larioja')?.checked) {
-      MAP.removeLayer(LARIOJA_LAYER);
-  }
-}*/
 
 function renderLaRiojaBoundary() {
   if (LARIOJA_LAYER) MAP.removeLayer(LARIOJA_LAYER);
@@ -270,18 +234,17 @@ function renderLaRiojaBoundary() {
   const styleOpt = { 
       className: 'larioja-boundary', 
       fillColor: '#c9a84c', 
-      fillOpacity: 0.0, // Ahora es 0 para que no bloquee los clics en los municipios interiores
+      fillOpacity: 0.0, 
       color: '#c9a84c', 
       weight: 2, 
       opacity: 0.8, 
       dashArray: '6,4',
-      interactive: true // Hacemos que sea clicable
+      interactive: true 
   };
 
-  // Función al hacer clic
   function onRiojaClick() {
       SELECTED_CODINE = 26;
-      // Simulamos que el usuario ha hecho clic en un municipio gigante
+      
       const p = { Nombre: "Ámbito Regional (Toda La Rioja)", CODINE: 26 };
       showArticlePanel(p);
       refreshMap();
@@ -313,19 +276,19 @@ function refreshMap() {
   if (MUNI_LAYER) {
       if (layerChecked) {
           if (!MAP.hasLayer(MUNI_LAYER)) MUNI_LAYER.addTo(MAP);
-          // Actualizamos estilos sin re-crear
+          
           MUNI_LAYER.eachLayer(layer => layer.setStyle(getFeatureStyle(layer.feature)));
       } else {
           MAP.removeLayer(MUNI_LAYER);
       }
   }
 
-  // Las etiquetas siempre se regeneran rápido porque dependen del filtro
+  
   renderLabels();
   updateStats();
 }
 
-// ─── HOVER / CLICK ────────────────────────────────────────────────────────────
+
 function handleMuniHover(e, p) {
   const codine = p.CODINE || p.codine;
   const count = getFilteredCount(codine);
@@ -357,7 +320,7 @@ function handleMuniClick(e, p) {
   refreshMap();
 }
 
-// ─── ARTICLE PANEL ────────────────────────────────────────────────────────────
+
 function showArticlePanel(p) {
   const panel = document.getElementById('article-panel');
   const title = document.getElementById('article-panel-title');
@@ -369,9 +332,7 @@ function showArticlePanel(p) {
   const codine = p.CODINE || p.codine;
   const articles = (CODINE_ARTICLE_MAP[codine] || []).filter(matchesFilter);
 
-  // --- ¡NUEVO!: Ordenar artículos por año (de más nuevo a más antiguo) ---
   articles.sort((a, b) => (b.fecha || 0) - (a.fecha || 0));
-  // -----------------------------------------------------------------------
 
   document.getElementById('map-container').style.right = '380px';
   let html = '';
@@ -380,7 +341,6 @@ function showArticlePanel(p) {
     html = `<div class="no-articles"><span class="icon">📚</span>Sin artículos asociados con los filtros actuales.</div>`;
   } else {
     
-    // --- LÓGICA DE ETIQUETAS LIMPIAS ---
     const epocasFijas = ["Tardoantiguo", "Visigótico", "Emiral/Califal", "Reino de Pamplona/Castilla"];
     const epocasEncontradas = new Set();
     
@@ -391,10 +351,9 @@ function showArticlePanel(p) {
         });
       }
     });
-    // Ordenamos según nuestro array fijo para que no bailen
     const epocasOrdenadas = epocasFijas.filter(e => epocasEncontradas.has(e));
     const badgesHtml = epocasOrdenadas.map(e => `<span class="meta-badge green">${e}</span>`).join('');
-    // -----------------------------------
+    
 
     html += `<div class="panel-meta-bar"><span class="meta-badge">${articles.length} art.</span>${badgesHtml}</div><div class="articles-list">`;
 
@@ -433,9 +392,8 @@ function closeArticlePanel() {
   refreshMap();
 }
 
-// ─── FILTERS ──────────────────────────────────────────────────────────────────
+// FILTROS
 function buildFilters() {
-  // 1. Definimos las épocas fijas en el orden deseado
   const epocasFijas = [
     { id: "Tardoantiguo", label: "Tardoantiguo (s. IV-VII)" },
     { id: "Visigótico", label: "Visigótico (s. VI-VIII)" },
@@ -444,19 +402,18 @@ function buildFilters() {
   ];
 
   const epocaEl = document.getElementById('filter-epoca');
-  epocaEl.innerHTML = ''; // Limpiamos por si acaso
+  epocaEl.innerHTML = ''; 
 
-  // Generamos solo los 4 botones
+  
   epocasFijas.forEach(e => {
     const pill = document.createElement('div'); 
     pill.className = 'pill'; 
     pill.textContent = e.label;
-    // Pasamos el 'id' corto al filtro, no la etiqueta larga
     pill.onclick = () => toggleFilter('epocas', e.id, pill);
     epocaEl.appendChild(pill);
   });
 
-  // 2. Los tipos de yacimiento los seguimos sacando dinámicamente (esto lo dejamos como lo tenías)
+
   const tipos = [...new Set(ALL_ARTICLES.map(a => a.tipo_yacimiento).filter(Boolean))].sort();
   const tipoEl = document.getElementById('filter-tipo');
   tipoEl.innerHTML = '';
@@ -482,18 +439,17 @@ function toggleFilter(key, value, pill) {
 function applyFilters() {
   refreshMap();
   if (SELECTED_CODINE) {
-    // Si tenemos seleccionado el código 26 (Toda La Rioja), generamos un objeto "falso" para el panel
+    
     if (SELECTED_CODINE === 26) {
       showArticlePanel({ Nombre: "Ámbito Regional (Toda La Rioja)", CODINE: 26 });
     } else {
-      // Si es un pueblo normal, lo buscamos en el GeoJSON
+      
       const f = ALL_MUNICIPALITIES.find(m => (m.properties.CODINE || m.properties.codine) === SELECTED_CODINE);
       if (f) showArticlePanel(f.properties);
     }
   }
 }
 
-// ─── SEARCH & CONTROLS ────────────────────────────────────────────────────────
 function initSearch() {
   const input = document.getElementById('search-input');
   const dropdown = document.getElementById('search-dropdown');
@@ -552,7 +508,6 @@ function bindControls() {
   document.getElementById('article-panel-close').onclick = closeArticlePanel;
 
 
-  // AÑADE ESTO: Acción para el botón de La Rioja entera
   document.getElementById('btn-regional').onclick = () => {
     SELECTED_CODINE = 26;
     showArticlePanel({ Nombre: "Ámbito Regional (Toda La Rioja)", CODINE: 26 });
